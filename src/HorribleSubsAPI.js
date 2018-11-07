@@ -1,5 +1,5 @@
 const cheerio = require('cheerio');
-const axios = require('axios');
+const axios = require('../util/axios.js');
 
 const BASE_URL = 'https://horriblesubs.info';
 const BASE_URL_SHOWS = BASE_URL + '/shows/';
