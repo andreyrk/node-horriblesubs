@@ -1,0 +1,30 @@
+{
+  "name": "node-horriblesubs",
+  "version": "1.0.0",
+  "description": "An unofficial HorribleSubs API to scrape data from horriblesubs.info",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreyrk/node-horriblesubs.git"
+  },
+  "keywords": [
+    "horriblesubs",
+    "anime",
+    "torrent",
+    "api"
+  ],
+  "author": "Andrey RK",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andreyrk/node-horriblesubs/issues"
+  },
+  "homepage": "https://github.com/andreyrk/node-horriblesubs#readme",
+  "devDependencies": {},
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2"
+  }
+}
