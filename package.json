@@ -1,6 +1,6 @@
 {
   "name": "node-horriblesubs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An unofficial HorribleSubs API to scrape data from horriblesubs.info",
   "main": "src/index.js",
   "scripts": {
