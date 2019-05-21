@@ -83,10 +83,20 @@ class HorribleSubsAPI {
             qualities.forEach((quality, index) => {
               let res = $(".link-" + quality);
               let magnet = res.find(".hs-magnet-link").find("a");
+              let torrent = res.find(".hs-torrent-link").find("a");
+              let xdc = res.find(".hs-xdcc-link").find("a");
 
               resolutions[index] = {
                 name: quality,
-                magnet: magnet.attr("href")
+                magnet: magnet.attr("href"),
+                torrent: torrent.attr("href"),
+                xdc: xdc.attr("href"),
+                downloads: info_container.find(".link-" + quality).find(".hs-ddl-link > a").map(function () {
+                  return {
+                    host: $(this).first().text(),
+                    url: $(this).attr("href")
+                  }
+                }).get()
               };
             });
 
