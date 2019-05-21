@@ -70,7 +70,10 @@ class HorribleSubsAPI {
       while (true) {
         let url = BASE_URL + '/api.php?method=getshows&type=show&showid=' + id + '&nextid=' + page.toString();
 
-        let array = await axios.get(url).then((response) => {
+        let array = await axios.get(url).then(async (response) => {
+          if (response.data.trim().toLowerCase() === "done")
+            response = await axios.get(BASE_URL + '/api.php?method=getshows&type=batch&showid=' + id + '&nextid=' + page.toString());
+
           let $ = cheerio.load(response.data);
 
           return $(".rls-info-container").map((index, element) => {
@@ -89,6 +92,7 @@ class HorribleSubsAPI {
 
             let array = {
               number: info_container.attr("id"),
+              releaseDate: info_container.find(".rls-date").text(),
               resolutions: resolutions
             };
 
