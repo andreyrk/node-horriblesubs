@@ -70,7 +70,10 @@ class HorribleSubsAPI {
       while (true) {
         let url = BASE_URL + '/api.php?method=getshows&type=show&showid=' + id + '&nextid=' + page.toString();
 
-        let array = await axios.get(url).then((response) => {
+        let array = await axios.get(url).then(async (response) => {
+          if (response.data.trim().toLowerCase() === "done")
+            response = await axios.get(BASE_URL + '/api.php?method=getshows&type=batch&showid=' + id + '&nextid=' + page.toString());
+
           let $ = cheerio.load(response.data);
 
           return $(".rls-info-container").map((index, element) => {
@@ -80,15 +83,26 @@ class HorribleSubsAPI {
             qualities.forEach((quality, index) => {
               let res = $(".link-" + quality);
               let magnet = res.find(".hs-magnet-link").find("a");
+              let torrent = res.find(".hs-torrent-link").find("a");
+              let xdc = res.find(".hs-xdcc-link").find("a");
 
               resolutions[index] = {
                 name: quality,
-                magnet: magnet.attr("href")
+                magnet: magnet.attr("href"),
+                torrent: torrent.attr("href"),
+                xdc: xdc.attr("href"),
+                downloads: info_container.find(".link-" + quality).find(".hs-ddl-link > a").map(function () {
+                  return {
+                    host: $(this).first().text(),
+                    url: $(this).attr("href")
+                  }
+                }).get()
               };
             });
 
             let array = {
               number: info_container.attr("id"),
+              releaseDate: info_container.find(".rls-date").text(),
               resolutions: resolutions
             };
 
