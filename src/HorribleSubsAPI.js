@@ -81,7 +81,7 @@ class HorribleSubsAPI {
 
             let resolutions = [];
             qualities.forEach((quality, index) => {
-              let res = $(".link-" + quality);
+              let res = $(info_container).find(".link-" + quality);
               let magnet = res.find(".hs-magnet-link").find("a");
               let torrent = res.find(".hs-torrent-link").find("a");
               let xdc = res.find(".hs-xdcc-link").find("a");
