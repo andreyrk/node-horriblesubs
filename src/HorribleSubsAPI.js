@@ -80,6 +80,26 @@ class HorribleSubsAPI {
     });
   }
 
+  getReleaseSchedule() {
+    return axios.get(BASE_URL + "/release-schedule/").then(response => {
+      const $ = cheerio.load(response.data);
+      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      let schedule = [];
+      $(".entry-content > table").each((i, table) => {
+        schedule.push({
+          day: days[i],
+          shows: $(table).find(".schedule-page-item a").map((i, element) => {
+            return {
+              title: $(element).text(),
+              url: BASE_URL + $(element).attr("href")
+            };
+          }).get()
+        });
+      });
+      return schedule;
+    });
+  }
+
   getAnimeData(url) {
     return axios.get(url).then((response) => {
       let $ = cheerio.load(response.data);
