@@ -40,6 +40,34 @@ class HorribleSubsAPI {
     }).catch(err => {throw err});
   }
 
+  async getLatestReleases() {
+    let shows = [];
+    let page = -1;
+
+    while (true) {
+      const nextId = page == -1 ? "" : page;
+      let response = await axios.get(BASE_URL + "/api.php?method=getlatest&nextid=" + nextId);
+
+      if (response.data == "Please use search instead")
+        break;
+
+      const $ = cheerio.load(response.data);
+
+      $("a").each((_, element) => {
+        shows.push({
+          episode: $(element).find("strong").text(),
+          resolutions: $(element).find(".latest-releases-res > span.badge").map((_, element) => $(element).text()).get(),
+          title: $(element).children().remove().end().text().slice(0, -3),
+          url: BASE_URL + $(element).attr("href")
+        });
+      });
+
+      page++;
+    }
+
+    return shows;
+  }
+
   getAnimeData(url) {
     return axios.get(url).then((response) => {
       let $ = cheerio.load(response.data);
