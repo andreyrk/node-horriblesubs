@@ -68,6 +68,18 @@ class HorribleSubsAPI {
     return shows;
   }
 
+  getCurrentSeason() {
+    return axios.get(BASE_URL + "/current-season").then(response => {
+      const $ = cheerio.load(response.data);
+      return $(".shows-wrapper > .ind-show > a").map((_, element) => {
+        return {
+          title: $(element).text(),
+          url: BASE_URL + $(element).attr("href")
+        }
+      }).get()
+    });
+  }
+
   getAnimeData(url) {
     return axios.get(url).then((response) => {
       let $ = cheerio.load(response.data);
