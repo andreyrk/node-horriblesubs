@@ -26,6 +26,80 @@ class HorribleSubsAPI {
     });
   }
 
+  getTodaysAnime() {
+    return axios.get(BASE_URL).then(response => {
+      let $ = cheerio.load(response.data);
+      return $(".schedule-widget-show").map((index, element) => {
+        let el = $(element).find("a");
+
+        return {
+          title: el.text(),
+          url: BASE_URL + el.attr("href")
+        }
+      }).get();
+    }).catch(err => {throw err});
+  }
+
+  async getLatestReleases() {
+    let shows = [];
+    let page = -1;
+
+    while (true) {
+      const nextId = page == -1 ? "" : page;
+      let response = await axios.get(BASE_URL + "/api.php?method=getlatest&nextid=" + nextId);
+
+      if (response.data == "Please use search instead")
+        break;
+
+      const $ = cheerio.load(response.data);
+
+      $("a").each((_, element) => {
+        shows.push({
+          episode: $(element).find("strong").text(),
+          resolutions: $(element).find(".latest-releases-res > span.badge").map((_, element) => $(element).text()).get(),
+          title: $(element).children().remove().end().text().slice(0, -3),
+          url: BASE_URL + $(element).attr("href")
+        });
+      });
+
+      page++;
+    }
+
+    return shows;
+  }
+
+  getCurrentSeason() {
+    return axios.get(BASE_URL + "/current-season").then(response => {
+      const $ = cheerio.load(response.data);
+      return $(".shows-wrapper > .ind-show > a").map((_, element) => {
+        return {
+          title: $(element).text(),
+          url: BASE_URL + $(element).attr("href")
+        }
+      }).get()
+    });
+  }
+
+  getReleaseSchedule() {
+    return axios.get(BASE_URL + "/release-schedule/").then(response => {
+      const $ = cheerio.load(response.data);
+      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      let schedule = [];
+      $(".entry-content > table").each((i, table) => {
+        schedule.push({
+          day: days[i],
+          shows: $(table).find(".schedule-page-item a").map((i, element) => {
+            return {
+              title: $(element).text(),
+              url: BASE_URL + $(element).attr("href")
+            };
+          }).get()
+        });
+      });
+      return schedule;
+    });
+  }
+
   getAnimeData(url) {
     return axios.get(url).then((response) => {
       let $ = cheerio.load(response.data);
@@ -64,7 +138,6 @@ class HorribleSubsAPI {
   async getAnimeEpisodes(id) {
     let page = 0;
     let episodes = [];
-    let qualities = ['480p', '720p', '1080p'];
 
     return (async function loop() {
       while (true) {
@@ -80,24 +153,25 @@ class HorribleSubsAPI {
             let info_container = $(element).first();
 
             let resolutions = [];
-            qualities.forEach((quality, index) => {
-              let res = $(info_container).find(".link-" + quality);
-              let magnet = res.find(".hs-magnet-link").find("a");
-              let torrent = res.find(".hs-torrent-link").find("a");
-              let xdc = res.find(".hs-xdcc-link").find("a");
+            $(info_container).find(".rls-link").each((i, row) => {
+              //let res = $(info_container).find(".link-" + row);
+              let quality = $(row).find(".rls-link-label").text().trim().replace(":", "");
+              let magnet = $(row).find(".hs-magnet-link").find("a");
+              let torrent = $(row).find(".hs-torrent-link").find("a");
+              let xdc = $(row).find(".hs-xdcc-link").find("a");
 
-              resolutions[index] = {
+              resolutions.push({
                 name: quality,
                 magnet: magnet.attr("href"),
                 torrent: torrent.attr("href"),
                 xdc: xdc.attr("href"),
-                downloads: info_container.find(".link-" + quality).find(".hs-ddl-link > a").map(function () {
+                downloads: $(row).find(".hs-ddl-link > a").map(function () {
                   return {
                     host: $(this).first().text(),
                     url: $(this).attr("href")
                   }
                 }).get()
-              };
+              });
             });
 
             let array = {
